@@ -4,6 +4,8 @@ const FileHelper = require('../util/file');
 
 const { validationResult } = require('express-validator');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getAddProduct = (req, res, next) => {
 	// if (!req.session.isLoggedIn) {
 	// 	return res.redirect('/login');
@@ -201,15 +203,26 @@ exports.getProducts = (req, res, next) => {
 	// 	return res.redirect('/login');
 	// }{ userId: req.user._id }
 
+	const page = +req.query.pageId || 1;
+	let totalPage = 0;
+
 	Product.find({ userId: req.user._id })
-		// .select('title price -_id')
-		// .populate('userId', 'name')
+		.countDocuments()
+		.then(productCount => {
+			totalPage = Math.ceil(productCount / ITEMS_PER_PAGE);
+
+			return Product.find({ userId: req.user._id })
+				.skip((page - 1) * ITEMS_PER_PAGE)
+				.limit(ITEMS_PER_PAGE);
+		})
 		.then(products => {
 			console.log(products);
 			res.render('admin/products', {
 				prods: products,
 				pageTitle: 'Admin Products',
 				path: '/admin/products',
+				totalPage: totalPage,
+				currentPage: page,
 				//isAuthenticated: req.session.isLoggedIn,
 			});
 		})

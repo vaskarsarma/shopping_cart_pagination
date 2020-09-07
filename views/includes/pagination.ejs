@@ -1,0 +1,10 @@
+<section class="pagination">
+	<% for (let pid=1; pid <= totalPage; pid++) { %>
+	<a
+		href="?pageId=<%= pid %>"
+		class="<%= (currentPage == pid)? 'active': '' %>"
+	>
+		<%= pid %></a
+	>
+	<% } %>
+</section>
